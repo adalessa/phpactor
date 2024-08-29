@@ -20,6 +20,7 @@ use Phpactor\WorseReflection\Core\Reflection\ReflectionClassLike;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionEnum;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionMember;
 use Phpactor\WorseReflection\Core\Type\ReflectedClassType;
+use Phpactor\WorseReflection\Core\TypeFactory;
 
 /**
  * Report if trying to call a class method which does not exist.
@@ -92,6 +93,18 @@ class MissingMemberProvider implements DiagnosticProvider
             }
             $found = true;
         }
+
+        // FIX: hack for laravel
+        if (!found) {
+            $model = TypeFactory::reflectedClass($resolver->reflector(), '\\Illuminate\\Database\\Eloquent\\Model');
+            if ($containerType->instanceof($model)) {
+                $builder = $resolver->reflector()->reflectClass('\\Illuminate\\Database\\Eloquent\\Builder');
+                if ($builder->members()->has($methodName)) {
+                    $found = true;
+                }
+            }
+        }
+
 
         if (!$found) {
             yield new MissingMemberDiagnostic(

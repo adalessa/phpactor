@@ -31,6 +31,7 @@ use Phpactor\Extension\LanguageServerSymbolProvider\LanguageServerSymbolProvider
 use Phpactor\Extension\LanguageServerSelectionRange\LanguageServerSelectionRangeExtension;
 use Phpactor\Extension\LanguageServerWorseReflection\LanguageServerWorseReflectionExtension;
 use Phpactor\Extension\LanguageServer\LanguageServerExtension;
+use Phpactor\Extension\Laravel\LaravelExtension;
 use Phpactor\Extension\ObjectRenderer\ObjectRendererExtension;
 use Phpactor\Extension\PhpCodeSniffer\PhpCodeSnifferExtension;
 use Phpactor\Extension\PhpCodeSniffer\PhpCodeSnifferSuggestExtension;
@@ -207,6 +208,8 @@ class Phpactor
             SymfonyExtension::class,
             SymfonySuggestExtension::class,
             PHPUnitExtension::class,
+
+            LaravelExtension::class,
         ];
 
         if (class_exists(DebugExtension::class)) {

@@ -49,6 +49,7 @@ class LaravelExtension implements OptionalExtension
     {
         $schema->setDefaults([
             'completion_worse.completor.laravel.enabled' => true,
+            'laravel.enabled' => true,
         ]);
     }
 }

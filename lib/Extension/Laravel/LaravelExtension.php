@@ -7,6 +7,7 @@ use Phpactor\Container\ContainerBuilder;
 use Phpactor\Container\OptionalExtension;
 use Phpactor\Extension\CompletionWorse\CompletionWorseExtension;
 use Phpactor\Extension\Completion\CompletionExtension;
+use Phpactor\Extension\Laravel\Providers\ViewsProvider;
 use Phpactor\Extension\ObjectRenderer\ObjectRendererExtension;
 use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\MapResolver\Resolver;
@@ -31,6 +32,7 @@ class LaravelExtension implements OptionalExtension
             return new LaravelMemberProvider();
         }, [ WorseReflectionExtension::TAG_MEMBER_PROVIDER => []]);
 
+        // extend this to handle multiples.
         $container->register(LaravelCompletor::class, function(Container $container) {
             return new LaravelCompletor(
                 $container->expect(WorseReflectionExtension::SERVICE_REFLECTOR, Reflector::class),
@@ -43,12 +45,23 @@ class LaravelExtension implements OptionalExtension
                     'name' => 'laravel',
                 ]
             ]);
+
+        $container->register(LaravelViewCompletor::class, function(Container $container) {
+            return new LaravelViewCompletor(
+                new ViewsProvider(),
+            );
+        }, [
+                CompletionWorseExtension::TAG_TOLERANT_COMPLETOR => [
+                    'name' => 'laravel-view',
+                ]
+            ]);
     }
 
     public function configure(Resolver $schema): void
     {
         $schema->setDefaults([
             'completion_worse.completor.laravel.enabled' => true,
+            'completion_worse.completor.laravel-view.enabled' => true,
             'laravel.enabled' => true,
         ]);
     }

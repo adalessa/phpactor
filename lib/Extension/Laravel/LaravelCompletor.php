@@ -50,26 +50,19 @@ class LaravelCompletor implements TolerantCompletor, TolerantQualifiable
         if ($type->instanceof(TypeFactory::reflectedClass($this->reflector, self::ELOQUENT_MODEL))->isTrue()) {
             $builder = $this->reflector->reflectClass(self::ELOQUENT_BUILDER);
             foreach ($builder->type()->members()->methods() as $method) {
-
-            yield Suggestion::createWithOptions($method->name(), [
-                'type' => Suggestion::TYPE_METHOD,
-                'short_description' => fn () => $this->formatter->format($method),
-                'documentation' => function () use ($method) {
-                    return $this->objectRenderer->render(new ItemDocumentation(sprintf(
-                        '%s::%s',
-                        $method->class()->name(),
-                        $method->name()
-                    ), $method->docblock()->formatted(), $method));
-                },
-                'snippet' => $this->snippetFormatter->format($method),
-            ]);
+                yield Suggestion::createWithOptions($method->name(), [
+                    'type' => Suggestion::TYPE_METHOD,
+                    'short_description' => fn () => $this->formatter->format($method),
+                    'documentation' => function () use ($method) {
+                        return $this->objectRenderer->render(new ItemDocumentation(sprintf(
+                            '%s::%s',
+                            $method->class()->name(),
+                            $method->name()
+                        ), $method->docblock()->formatted(), $method));
+                    },
+                    'snippet' => $this->snippetFormatter->format($method),
+                ]);
             }
-            // eureka we have a model can add the type
-            // Need to get all methods from builder
-            /*yield Suggestion::createWithOptions('where', [*/
-            /*    'type' => Suggestion::TYPE_METHOD,*/
-            /*    'short_description' => 'Where clause',*/
-            /*]);*/
         }
 
         return true;

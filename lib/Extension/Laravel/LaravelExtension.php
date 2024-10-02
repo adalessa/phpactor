@@ -15,6 +15,9 @@ use Phpactor\WorseReflection\Reflector;
 
 class LaravelExtension implements OptionalExtension
 {
+    const ARTISAN_COMMAND = 'laravel.artisan_command';
+    const PARAM_ENABLED = 'laravel.enabled';
+
     public function name(): string
     {
         return 'laravel';
@@ -62,7 +65,12 @@ class LaravelExtension implements OptionalExtension
         $schema->setDefaults([
             'completion_worse.completor.laravel.enabled' => true,
             'completion_worse.completor.laravel-view.enabled' => true,
-            'laravel.enabled' => true,
+            self::PARAM_ENABLED => true,
+            self::ARTISAN_COMMAND => "php artisan",
+        ]);
+
+        $schema->setDescriptions([
+            self::ARTISAN_COMMAND => 'command to execute artisan'
         ]);
     }
 }

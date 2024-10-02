@@ -4,6 +4,7 @@ namespace Phpactor\Extension\Laravel;
 
 use Generator;
 use Microsoft\PhpParser\Node;
+use Microsoft\PhpParser\Node\Expression\ArgumentExpression;
 use Microsoft\PhpParser\Node\Expression\CallExpression;
 use Microsoft\PhpParser\Node\Expression\MemberAccessExpression;
 use Phpactor\Completion\Bridge\TolerantParser\Qualifier\AlwaysQualfifier;
@@ -31,6 +32,8 @@ class LaravelViewCompletor implements TolerantCompletor, TolerantQualifiable
     {
         $inQuote = false;
 
+        $argument = $node->getFirstAncestor(ArgumentExpression::class);
+
         if ($node instanceof StringLiteral) {
             $inQuote = true;
             $node = $node->getFirstAncestor(CallExpression::class);
@@ -55,6 +58,13 @@ class LaravelViewCompletor implements TolerantCompletor, TolerantQualifiable
             return;
         }
 
+        if (
+            $argument?->getPreviousSibling() != null
+            && $argument?->name?->getText((string) $source) != 'view'
+        ) {
+            return;
+        }
+
         // FIX: move directly to it's own class and only needs to call in one.
         foreach ($this->viewsProvider->get() as $viewName => $file) {
             $value = $inQuote ? $viewName : sprintf("'%s'", $viewName);
@@ -65,6 +75,7 @@ class LaravelViewCompletor implements TolerantCompletor, TolerantQualifiable
                 'priority' => 555,
             ]);
         }
+
 
         return true;
     }

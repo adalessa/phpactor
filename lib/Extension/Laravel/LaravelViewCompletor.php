@@ -26,20 +26,19 @@ class LaravelViewCompletor implements TolerantCompletor, TolerantQualifiable
     ) {
     }
 
-    // FIX: realize why does not in both, one is a call exresion and the other is a membercallexpression
-
     public function complete(Node $node, TextDocument $source, ByteOffset $offset): Generator
     {
         $inQuote = false;
-
-        $argument = $node->getFirstAncestor(ArgumentExpression::class);
+        $argument = null;
 
         if ($node instanceof StringLiteral) {
             $inQuote = true;
+            $argument = $node->getFirstAncestor(ArgumentExpression::class);
             $node = $node->getFirstAncestor(CallExpression::class);
         }
 
         if (!$node instanceof CallExpression) {
+            $argument = $node->getFirstAncestor(ArgumentExpression::class);
             $node = $node->getFirstAncestor(CallExpression::class);
         }
 
@@ -59,13 +58,13 @@ class LaravelViewCompletor implements TolerantCompletor, TolerantQualifiable
         }
 
         if (
-            $argument?->getPreviousSibling() != null
+            $argument != null
+            && $argument?->getPreviousSibling() != null
             && $argument?->name?->getText((string) $source) != 'view'
         ) {
             return;
         }
 
-        // FIX: move directly to it's own class and only needs to call in one.
         foreach ($this->viewsProvider->get() as $viewName => $file) {
             $value = $inQuote ? $viewName : sprintf("'%s'", $viewName);
             yield Suggestion::createWithOptions($value, [
@@ -75,7 +74,6 @@ class LaravelViewCompletor implements TolerantCompletor, TolerantQualifiable
                 'priority' => 555,
             ]);
         }
-
 
         return true;
     }

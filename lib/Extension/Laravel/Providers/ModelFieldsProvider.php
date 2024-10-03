@@ -16,6 +16,10 @@ class ModelFieldsProvider
     {
         $info = $this->artisanRunner->run('model:show', [$model, '--json']);
 
+        if (null == $info) {
+            return [];
+        }
+
         return array_map(
             fn ($field) => [
                 'name' => $field['name'],

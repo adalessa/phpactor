@@ -11,10 +11,12 @@ use Phpactor\Extension\Laravel\Providers\ConfigsProvider;
 use Phpactor\Extension\Laravel\Providers\ModelFieldsProvider;
 use Phpactor\Extension\Laravel\Providers\RoutesProvider;
 use Phpactor\Extension\Laravel\Providers\ViewsProvider;
+use Phpactor\Extension\Logger\LoggingExtension;
 use Phpactor\Extension\ObjectRenderer\ObjectRendererExtension;
 use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\MapResolver\Resolver;
 use Phpactor\WorseReflection\Reflector;
+use Psr\Log\LoggerInterface;
 
 class LaravelExtension implements OptionalExtension
 {
@@ -93,6 +95,7 @@ class LaravelExtension implements OptionalExtension
         $container->register(ArtisanRunner::class, function(Container $container) {
             return new ArtisanRunner(
                 $container->parameter(self::ARTISAN_COMMAND)->string(),
+                LoggingExtension::channelLogger($container, 'laravel'),
             );
         });
     }

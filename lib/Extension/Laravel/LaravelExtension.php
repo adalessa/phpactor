@@ -54,10 +54,16 @@ class LaravelExtension implements OptionalExtension
                 new ViewsProvider(),
             );
         }, [
-                CompletionWorseExtension::TAG_TOLERANT_COMPLETOR => [
-                    'name' => 'laravel-view',
-                ]
-            ]);
+            CompletionWorseExtension::TAG_TOLERANT_COMPLETOR => [
+                'name' => 'laravel-view',
+            ]
+        ]);
+
+        $container->register(ArtisanRunner::class, function(Container $container) {
+            return new ArtisanRunner(
+                $container->parameter(self::ARTISAN_COMMAND)->string(),
+            );
+        });
     }
 
     public function configure(Resolver $schema): void

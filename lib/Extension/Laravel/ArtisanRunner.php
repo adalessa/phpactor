@@ -2,6 +2,7 @@
 
 namespace Phpactor\Extension\Laravel;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Process\Process;
 
 class ArtisanRunner
@@ -9,8 +10,10 @@ class ArtisanRunner
     /** @var string[] */
     private array $command;
 
-    public function __construct(string $command)
-    {
+    public function __construct(
+        string $command,
+        private readonly LoggerInterface $logger,
+    ) {
         $this->command = explode(' ', $command);
     }
 
@@ -26,6 +29,13 @@ class ArtisanRunner
         $process->run();
 
         if (!$process->isSuccessful()) {
+            $this->logger->warning(
+                'error running command ' . $command,
+                [
+                    'error' => $process->getErrorOutput(),
+                    'output' => $process->getOutput(),
+                ],
+            );
             return null;
         }
 

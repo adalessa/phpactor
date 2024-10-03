@@ -14,13 +14,6 @@ class ArtisanRunner
         $this->command = explode(' ', $command);
     }
 
-    public function routeList(): array
-    {
-        $a = $this->run('routes:list', ['--json']);
-
-        return $a;
-    }
-
     /**
      * @param string[] $args
      *
@@ -28,9 +21,7 @@ class ArtisanRunner
      */
     public function run(string $command, array $args = [], bool $json = true)
     {
-        $process = new Process(
-            $this->command, + [$command] + $args
-        );
+        $process = new Process([...$this->command, $command, ...$args]);
 
         $process->run();
 

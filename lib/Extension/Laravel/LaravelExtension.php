@@ -7,6 +7,8 @@ use Phpactor\Container\ContainerBuilder;
 use Phpactor\Container\OptionalExtension;
 use Phpactor\Extension\CompletionWorse\CompletionWorseExtension;
 use Phpactor\Extension\Completion\CompletionExtension;
+use Phpactor\Extension\Laravel\Providers\ConfigsProvider;
+use Phpactor\Extension\Laravel\Providers\RoutesProvider;
 use Phpactor\Extension\Laravel\Providers\ViewsProvider;
 use Phpactor\Extension\ObjectRenderer\ObjectRendererExtension;
 use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
@@ -55,7 +57,31 @@ class LaravelExtension implements OptionalExtension
             );
         }, [
             CompletionWorseExtension::TAG_TOLERANT_COMPLETOR => [
-                'name' => 'laravel-view',
+                'name' => 'laravel-views',
+            ]
+        ]);
+
+        $container->register(LaravelConfigCompletor::class, function(Container $container) {
+            return new LaravelConfigCompletor(
+                new ConfigsProvider(
+                    $container->get(ArtisanRunner::class),
+                ),
+            );
+        }, [
+            CompletionWorseExtension::TAG_TOLERANT_COMPLETOR => [
+                'name' => 'laravel-configs',
+            ]
+        ]);
+
+        $container->register(LaravelRoutesCompletor::class, function(Container $container) {
+            return new LaravelRoutesCompletor(
+                new RoutesProvider(
+                    $container->get(ArtisanRunner::class),
+                ),
+            );
+        }, [
+            CompletionWorseExtension::TAG_TOLERANT_COMPLETOR => [
+                'name' => 'laravel-routes',
             ]
         ]);
 
@@ -70,7 +96,9 @@ class LaravelExtension implements OptionalExtension
     {
         $schema->setDefaults([
             'completion_worse.completor.laravel.enabled' => true,
-            'completion_worse.completor.laravel-view.enabled' => true,
+            'completion_worse.completor.laravel-views.enabled' => true,
+            'completion_worse.completor.laravel-configs.enabled' => true,
+            'completion_worse.completor.laravel-routes.enabled' => true,
             self::PARAM_ENABLED => true,
             self::ARTISAN_COMMAND => "php artisan",
         ]);

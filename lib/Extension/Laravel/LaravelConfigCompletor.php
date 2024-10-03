@@ -12,6 +12,7 @@ use Phpactor\Completion\Bridge\TolerantParser\TolerantCompletor;
 use Phpactor\Completion\Bridge\TolerantParser\TolerantQualifiable;
 use Phpactor\Completion\Bridge\TolerantParser\TolerantQualifier;
 use Phpactor\Completion\Core\Suggestion;
+use Phpactor\Extension\Laravel\Providers\ConfigsProvider;
 use Phpactor\Extension\Laravel\Providers\ViewsProvider;
 use Phpactor\TextDocument\ByteOffset;
 use Phpactor\TextDocument\TextDocument;
@@ -19,16 +20,16 @@ use Phpactor\TextDocument\TextDocument;
 use Phpactor\WorseReflection\Core\Util\NodeUtil;
 use function sprintf;
 
-class LaravelViewCompletor implements TolerantCompletor, TolerantQualifiable
+class LaravelConfigCompletor implements TolerantCompletor, TolerantQualifiable
 {
     public function __construct(
-        private readonly ViewsProvider $viewsProvider,
+        private readonly ConfigsProvider $configsProvider,
     ) {
     }
 
     public function getName(): string
     {
-        return 'view';
+        return 'config';
     }
 
     public function complete(Node $node, TextDocument $source, ByteOffset $offset): Generator
@@ -70,12 +71,12 @@ class LaravelViewCompletor implements TolerantCompletor, TolerantQualifiable
             return;
         }
 
-        foreach ($this->viewsProvider->get() as $viewName => $file) {
-            $value = $inQuote ? $viewName : sprintf("'%s'", $viewName);
+        foreach ($this->configsProvider->get() as $config) {
+            $value = $inQuote ? $config : sprintf("'%s'", $config);
             yield Suggestion::createWithOptions($value, [
                 'type' => Suggestion::TYPE_VALUE,
-                'short_description' => $viewName,
-                'documentation' => sprintf('**Blade View**: %s', $file),
+                'short_description' => $config,
+                'documentation' => sprintf('**Config Key: **: %s', $config),
                 'priority' => 555,
             ]);
         }

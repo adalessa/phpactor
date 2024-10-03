@@ -26,7 +26,6 @@ class ArtisanRunner
         $process->run();
 
         if (!$process->isSuccessful()) {
-            throw new \Exception("error running command: ". $process->getOutput() . $process->getErrorOutput());
             return null;
         }
 

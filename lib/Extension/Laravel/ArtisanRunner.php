@@ -32,6 +32,7 @@ class ArtisanRunner
             $this->logger->warning(
                 'error running command ' . $command,
                 [
+                    'base_command' => $this->command,
                     'error' => $process->getErrorOutput(),
                     'output' => $process->getOutput(),
                 ],

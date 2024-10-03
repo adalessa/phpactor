@@ -8,6 +8,7 @@ use Phpactor\Container\OptionalExtension;
 use Phpactor\Extension\CompletionWorse\CompletionWorseExtension;
 use Phpactor\Extension\Completion\CompletionExtension;
 use Phpactor\Extension\Laravel\Providers\ConfigsProvider;
+use Phpactor\Extension\Laravel\Providers\ModelFieldsProvider;
 use Phpactor\Extension\Laravel\Providers\RoutesProvider;
 use Phpactor\Extension\Laravel\Providers\ViewsProvider;
 use Phpactor\Extension\ObjectRenderer\ObjectRendererExtension;
@@ -34,7 +35,11 @@ class LaravelExtension implements OptionalExtension
         }, [ WorseReflectionExtension::TAG_MEMBER_TYPE_RESOLVER => []]);
 
         $container->register(LaravelMemberProvider::class, function(Container $container) {
-            return new LaravelMemberProvider();
+            return new LaravelMemberProvider(
+                new ModelFieldsProvider(
+                    $container->get(ArtisanRunner::class),
+                ),
+            );
         }, [ WorseReflectionExtension::TAG_MEMBER_PROVIDER => []]);
 
         // extend this to handle multiples.

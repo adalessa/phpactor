@@ -15,6 +15,7 @@ use Phpactor\Extension\Logger\LoggingExtension;
 use Phpactor\Extension\ObjectRenderer\ObjectRendererExtension;
 use Phpactor\Extension\WorseReflection\WorseReflectionExtension;
 use Phpactor\MapResolver\Resolver;
+use Phpactor\WorseReflection\Core\Cache\StaticCache;
 use Phpactor\WorseReflection\Reflector;
 use Psr\Log\LoggerInterface;
 
@@ -36,10 +37,15 @@ class LaravelExtension implements OptionalExtension
             return new LaravelEloquentMethodResolver();
         }, [ WorseReflectionExtension::TAG_MEMBER_TYPE_RESOLVER => []]);
 
+        $container->register('laravel-cache', function (Container $container) {
+            return new StaticCache();
+        });
+
         $container->register(LaravelMemberProvider::class, function(Container $container) {
             return new LaravelMemberProvider(
                 new ModelFieldsProvider(
                     $container->get(ArtisanRunner::class),
+                    $container->get('laravel-cache'),
                 ),
             );
         }, [ WorseReflectionExtension::TAG_MEMBER_PROVIDER => []]);
@@ -60,7 +66,9 @@ class LaravelExtension implements OptionalExtension
 
         $container->register(LaravelViewCompletor::class, function(Container $container) {
             return new LaravelViewCompletor(
-                new ViewsProvider(),
+                new ViewsProvider(
+                    $container->get('laravel-cache'),
+                ),
             );
         }, [
             CompletionWorseExtension::TAG_TOLERANT_COMPLETOR => [
@@ -72,6 +80,7 @@ class LaravelExtension implements OptionalExtension
             return new LaravelConfigCompletor(
                 new ConfigsProvider(
                     $container->get(ArtisanRunner::class),
+                    $container->get('laravel-cache'),
                 ),
             );
         }, [
@@ -84,6 +93,7 @@ class LaravelExtension implements OptionalExtension
             return new LaravelRoutesCompletor(
                 new RoutesProvider(
                     $container->get(ArtisanRunner::class),
+                    $container->get('laravel-cache'),
                 ),
             );
         }, [

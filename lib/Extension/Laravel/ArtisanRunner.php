@@ -7,14 +7,10 @@ use Symfony\Component\Process\Process;
 
 class ArtisanRunner
 {
-    /** @var string[] */
-    private array $command;
-
     public function __construct(
-        string $command,
+        private readonly string $command,
         private readonly LoggerInterface $logger,
     ) {
-        $this->command = explode(' ', $command);
     }
 
     /**
@@ -22,17 +18,17 @@ class ArtisanRunner
      *
      * @return ($json is true ? array : string)
      */
-    public function run(string $command, array $args = [], bool $json = true)
+    public function run(string $subCommand, array $args = [], bool $json = true)
     {
-        $process = new Process([...$this->command, $command, ...$args]);
+        $process = new Process([$this->command, $subCommand, ...$args]);
 
         $process->run();
 
         if (!$process->isSuccessful()) {
             $this->logger->warning(
-                'error running command ' . $command,
+                'error running command ' . $subCommand,
                 [
-                    'base_command' => $this->command,
+                    'command' => $process->getCommandLine(),
                     'error' => $process->getErrorOutput(),
                     'output' => $process->getOutput(),
                 ],

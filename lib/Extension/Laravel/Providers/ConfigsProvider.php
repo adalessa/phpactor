@@ -17,7 +17,7 @@ class ConfigsProvider
             'tinker',
             [
                 '--execute',
-                'echo json_encode(collect(Arr::dot(Config::all()))->keys()->filter(fn($key) => is_string($key))->values()->all());'
+                'echo json_encode(collect(\Illuminate\Support\Arr::dot(\Illuminate\Support\Facades\Config::all()))->keys()->filter(fn($key) => is_string($key))->values()->all());'
             ]
         );
     }

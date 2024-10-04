@@ -20,7 +20,7 @@ class ArtisanRunner
      */
     public function run(string $subCommand, array $args = [], bool $json = true)
     {
-        $process = new Process([$this->command, $subCommand, ...$args]);
+        $process = new Process([...explode($this->command, ' '), $subCommand, ...$args]);
 
         $process->run();
 

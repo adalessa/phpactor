@@ -29,7 +29,7 @@ class RoutesProvider
             return array_map(function ($route) {
                 return [
                     'name' => $route['name'],
-                    'path' => $route['uri'],
+                    'uri' => $route['uri'],
                 ];
             }, $routes);
         });

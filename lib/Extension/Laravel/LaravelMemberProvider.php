@@ -8,6 +8,7 @@ use Phpactor\WorseReflection\Core\Inference\Frame;
 use Phpactor\WorseReflection\Core\Reflection\Collection\ChainReflectionMemberCollection;
 use Phpactor\WorseReflection\Core\Reflection\Collection\HomogeneousReflectionMemberCollection;
 use Phpactor\WorseReflection\Core\Reflection\Collection\ReflectionMemberCollection;
+use Phpactor\WorseReflection\Core\Reflection\Collection\ReflectionMethodCollection;
 use Phpactor\WorseReflection\Core\Reflection\ReflectionClassLike;
 use Phpactor\WorseReflection\Core\ServiceLocator;
 use Phpactor\WorseReflection\Core\TypeFactory;
@@ -34,13 +35,15 @@ class LaravelMemberProvider implements ReflectionMemberProvider
         ))->isTrue()) {
             $builder = $locator->reflector()->reflectClass(self::ELOQUENT_BUILDER);
 
-            $members[] = $builder->type()->members()->methods();
+            // TODO: need to get the methods and change the return type of the member
+            // like findOrFail() should
+            // could map, check the return type if its TModel replace with the defined type
+            $members[] = $this->retypeMethods($builder->type()->members()->methods());
 
             // here could add the virtual methods for the specifc class
             if ($class->type()->name()->head() != "Illuminate") {
                 $properties = [];
-                try {
-                    foreach ($this->modelFieldsProvider->get($class->type()->name()->full()) as $field) {
+                    foreach ($this->modelFieldsProvider->get($class->type()->name()->full(), $locator->reflector()) as $field) {
                         $properties[] = new VirtualReflectionProperty(
                             $class->position(),
                             $class,
@@ -58,11 +61,14 @@ class LaravelMemberProvider implements ReflectionMemberProvider
 
                     $memberCollection = HomogeneousReflectionMemberCollection::fromMembers($properties);
                     $members[] = $memberCollection;
-                } catch (\Throwable) {
-                }
             }
         }
 
         return ChainReflectionMemberCollection::fromCollections($members);
+    }
+
+    private function retypeMethods(ReflectionMethodCollection $methods): ReflectionMethodCollection
+    {
+        return $methods;
     }
 }

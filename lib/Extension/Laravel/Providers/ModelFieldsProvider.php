@@ -3,9 +3,11 @@
 namespace Phpactor\Extension\Laravel\Providers;
 
 use Phpactor\Extension\Laravel\ArtisanRunner;
+use Phpactor\WorseReflection\Core\ClassName;
 use Phpactor\WorseReflection\Core\Type;
 use Phpactor\WorseReflection\Core\Cache;
 use Phpactor\WorseReflection\Core\TypeFactory;
+use Phpactor\WorseReflection\Core\Type\GenericClassType;
 use Phpactor\WorseReflection\Reflector;
 
 class ModelFieldsProvider
@@ -63,8 +65,6 @@ class ModelFieldsProvider
 
         // TODO: need to handle cast custom casts.
 
-        // TODO: handle the relationships
-
         if (isset($field['nullable']) && $field['nullable']) {
             $type = TypeFactory::nullable($type);
         }
@@ -77,7 +77,14 @@ class ModelFieldsProvider
         $type = TypeFactory::class($relation['related']);
 
         return match ($relation['type']) {
-            'BelongsToMany', 'HasMany' => TypeFactory::collection($reflector, '\Illuminate\Database\Eloquent\Collection', $relation['related']),
+            'BelongsToMany', 'HasMany' => new GenericClassType(
+                $reflector,
+                ClassName::fromString('\Illuminate\Database\Eloquent\Collection'),
+                [
+                    TypeFactory::int(),
+                    $type,
+                ],
+            ),
             default => $type,
         };
     }

@@ -5,6 +5,38 @@ Changelog
 
 Features:
 
+  - String <=> Heredoc code action #2825 @mamazu
+  - Support new expression without parenthesis #2811
+  - Support vscode evaluatable expressions #2905 @zobo
+  - Runtime support for PHP 8.4 #2829
+  - Initial support for property hooks @dantleech #2833
+
+Improvements:
+
+  - Psalm: add `config` option to specify Psalm config @GDXbsv #2835
+  - Completion for `@internal`  tag #2827 @mamazu
+  - Add documentation for Nova Language Client #2830 @EmranMR 
+  - Enable fill constructor code action on attributes #2810 @mamazu
+
+Bug fix:
+
+  - Handle zero modulo evaluation @dantleech
+  - Do not use FQNs for imported classes in generated docblocks #2843 @dantleech
+
+Documentation:
+
+  - Add information for Zed editor @sethstha #2836
+
+## 2024-11-28.1
+
+Bug fixes:
+
+- Do not include the file scheme in when including/excluding files #2794
+
+## 2024-11-28
+
+Features:
+
   - Show codes for all diagnostics and allow them to be ignored @dantleech
     #2781
 
@@ -18,6 +50,7 @@ Improvements:
 
 Bug fixes:
 
+  - Navigator: Fix attempt to create existing directories #2776 @bart-jaskulsi
   - Fix goto constant within a trait #2784 @dantleech
   - Preserve PHAR scheme when indexing PHAR stubs @dantleech #2754
   - Fix duplicated types when updating methods @mamazu #2779

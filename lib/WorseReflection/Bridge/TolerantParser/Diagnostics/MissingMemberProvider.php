@@ -95,7 +95,7 @@ class MissingMemberProvider implements DiagnosticProvider
         }
 
         // FIX: hack for laravel
-        if (!found) {
+        if (!$found) {
             $model = TypeFactory::reflectedClass($resolver->reflector(), '\\Illuminate\\Database\\Eloquent\\Model');
             if ($containerType->instanceof($model)) {
                 $builder = $resolver->reflector()->reflectClass('\\Illuminate\\Database\\Eloquent\\Builder');

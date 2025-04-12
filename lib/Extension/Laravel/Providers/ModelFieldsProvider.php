@@ -4,6 +4,7 @@ namespace Phpactor\Extension\Laravel\Providers;
 
 use Phpactor\Extension\Laravel\ArtisanRunner;
 use Phpactor\WorseReflection\Core\ClassName;
+use Phpactor\WorseReflection\Core\Reflection\ReflectionEnum;
 use Phpactor\WorseReflection\Core\Type;
 use Phpactor\WorseReflection\Core\Cache;
 use Phpactor\WorseReflection\Core\TypeFactory;
@@ -31,7 +32,7 @@ class ModelFieldsProvider
                  array_map(
                     fn ($field) => [
                         'name' => $field['name'],
-                        'type' => $this->createType($field),
+                        'type' => $this->createType($field, $reflector),
                     ],
                     $info['attributes'] ?? [],
                 ),
@@ -46,7 +47,7 @@ class ModelFieldsProvider
         });
     }
 
-    private function createType(array $field): Type
+    private function createType(array $field, Reflector $reflector): Type
     {
         $type = match($field['type']) {
             'varchar', 'text' => TypeFactory::string(),
@@ -54,16 +55,19 @@ class ModelFieldsProvider
             default => TypeFactory::string(),
         };
 
+        if (str_starts_with($field['type'], 'tinyint')) {
+            $type = TypeFactory::int();
+        }
+
         // TODO: suuport more default casts https://laravel.com/docs/11.x/eloquent-mutators#attribute-casting
         $type = match ($field['cast']) {
             'datetime', 'date' => TypeFactory::class('\Illuminate\Support\Carbon'),
             'bool' => TypeFactory::bool(),
             'attribute' => TypeFactory::string(),
             'int' => TypeFactory::int(),
-            default => $type,
+            null => $type,
+            default => $this->getTypeFromCast($field['cast'], $reflector),
         };
-
-        // TODO: need to handle cast custom casts.
 
         if (isset($field['nullable']) && $field['nullable']) {
             $type = TypeFactory::nullable($type);
@@ -87,5 +91,27 @@ class ModelFieldsProvider
             ),
             default => $type,
         };
+    }
+
+    private function getTypeFromCast(string $cast, Reflector $reflector): Type
+    {
+        $castClass = ClassName::fromString($cast);
+        $reflectionClass = $reflector->reflectClassLike($castClass);
+
+        if (true === $reflectionClass instanceof ReflectionEnum) {
+            return $reflectionClass->type();
+        }
+
+        // need to get the get and set
+        $castTypes = $reflectionClass->docblock()->implements();
+        if (count($castTypes) > 0) {
+            $castType = $castTypes[0];
+            if (true === $castType instanceof GenericClassType) {
+                return $castType->arguments()[0];
+            }
+
+        }
+
+        return TypeFactory::mixed();
     }
 }

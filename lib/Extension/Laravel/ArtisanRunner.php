@@ -37,6 +37,7 @@ class ArtisanRunner
                     'output' => $process->getOutput(),
                 ],
             );
+
             return null;
         }
 

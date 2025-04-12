@@ -35,33 +35,34 @@ class LaravelMemberProvider implements ReflectionMemberProvider
         ))->isTrue()) {
             $builder = $locator->reflector()->reflectClass(self::ELOQUENT_BUILDER);
 
-            // TODO: need to get the methods and change the return type of the member
-            // like findOrFail() should
-            // could map, check the return type if its TModel replace with the defined type
-            $members[] = $this->retypeMethods($builder->type()->members()->methods());
 
             // here could add the virtual methods for the specifc class
             if ($class->type()->name()->head() != "Illuminate") {
                 $properties = [];
-                    foreach ($this->modelFieldsProvider->get($class->type()->name()->full(), $locator->reflector()) as $field) {
-                        $properties[] = new VirtualReflectionProperty(
-                            $class->position(),
-                            $class,
-                            $class,
-                            $field['name'],
-                            new Frame(),
-                            $class->docblock(),
-                            $class->scope(),
-                            Visibility::public(),
-                            $field['type'],
-                            $field['type'],
-                            new Deprecation(false),
-                        );
-                    }
+                foreach ($this->modelFieldsProvider->get($class->type()->name()->full(), $locator->reflector()) as $field) {
+                    $properties[] = new VirtualReflectionProperty(
+                        $class->position(),
+                        $class,
+                        $class,
+                        $field['name'],
+                        new Frame(),
+                        $class->docblock(),
+                        $class->scope(),
+                        Visibility::public(),
+                        $field['type'],
+                        $field['type'],
+                        new Deprecation(false),
+                    );
+                }
 
-                    $memberCollection = HomogeneousReflectionMemberCollection::fromMembers($properties);
-                    $members[] = $memberCollection;
+                $memberCollection = HomogeneousReflectionMemberCollection::fromMembers($properties);
+                $members[] = $memberCollection;
             }
+
+            // TODO: need to get the methods and change the return type of the member
+            // like findOrFail() should
+            // could map, check the return type if its TModel replace with the defined type
+            $members[] = $this->retypeMethods($builder->type()->members()->methods());
         }
 
         return ChainReflectionMemberCollection::fromCollections($members);
